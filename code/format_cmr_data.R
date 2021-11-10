@@ -13,7 +13,7 @@ df0 <- list.files(path = "data/data_raw") %>%
   filter(str_detect(value, "cmr")) %>% 
   filter(str_detect(value, "csv")) %>% 
   pull() %>% 
-  paste0("data_raw/", .) %>% 
+  paste0("data/data_raw/", .) %>% 
   lapply(read_csv) %>% 
   do.call(bind_rows, .) %>% 
   select(-recap,
@@ -36,7 +36,6 @@ skimr::skim(df0)
 ## clean injury column
 ## align letter case
 ## remove tributary data
-
 df1 <- df0 %>% 
   drop_na(pit_number) %>% 
   mutate(injury = case_when(injury == "indured" ~ "YES",
@@ -46,7 +45,7 @@ df1 <- df0 %>%
 
 
 ## double tagged individuals
-## to avoid confusion, 
+## use single pit id for those double tagged (pit_number)
 pit_double <- unique(na.omit(df1$pit_number2))
 
 for(i in seq_len(length(pit_double))) {
@@ -63,14 +62,14 @@ for(i in seq_len(length(pit_double))) {
                                no = pit_number))
 }
 
-## create occasion
+## create `occasion`
 df1 <- df1 %>%
   mutate(date = as.Date(date, format = "%m/%d/%Y"),
          year_month_code = as.factor(format(date, "%y-%m")),
          occasion = as.numeric(year_month_code))
 
+
 # export ------------------------------------------------------------------
 
-write_csv(df1,
-          file = "data_fmt/cmr_fmt.csv")
+write_csv(df1, file = "data/data_fmt/cmr_fmt.csv")
 
