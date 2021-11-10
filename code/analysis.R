@@ -31,12 +31,38 @@ df_response <- df_cmr %>%
 
 # port data ---------------------------------------------------------------
 
-df_port %>% 
-  pivot_wider(id_cols = pit_number,
-              names_from = occasion,
-              names_prefix = "occasion_",
-              values_from = section,
-              values_fn = max) %>% 
-  relocate(pit_number,
-           paste("occasion", 1:6, sep = "_")) %>% 
-  mutate(x = diff(occasion_1, occasion_2))
+## base data
+df_port_base <- df_port %>% 
+  group_by(occasion, pit_number) %>% 
+  summarize(section = max(section))
+  
+## extract individuals detected more than twice
+ind_id <- df_port_base %>%   
+  group_by(pit_number) %>% 
+  summarize(frequency = n()) %>% 
+  filter(frequency > 2) %>% 
+  pull(pit_number)
+
+## esimate SD
+df_sd <- df_port_base %>% 
+  filter(pit_number %in% ind_id) %>% 
+  group_by(pit_number) %>% 
+  summarize(sd_move = sd(section))
+
+
+# combine data ------------------------------------------------------------
+
+df_m <- df_response %>% 
+  left_join(df_sd, by = "pit_number")
+
+
+# plot --------------------------------------------------------------------
+
+df_m %>% 
+  filter(species %in% c("masusalmon",
+                        "rainbowtrout",
+                        "whitespottedchar")) %>% 
+  ggplot(aes(x = sd_move,
+             y = growth)) +
+  geom_point() +
+  facet_wrap(facets = ~species)

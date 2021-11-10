@@ -32,11 +32,13 @@ skimr::skim(df0)
 ## create `occasion`
 ## remove dummy pit data
 ## remove tributary data
+## correct error data - 19800 to 1980
 df1 <- df0 %>% 
   mutate(year_month_code = as.factor(format(date, "%y-%m")),
          occasion = as.numeric(year_month_code)) %>% 
   filter(dummy == "NO",
-         !str_detect(section, "t"))
+         !str_detect(section, "t")) %>% 
+  mutate(section = ifelse(section == 19800, 1980, section))
 
 # export ------------------------------------------------------------------
 
