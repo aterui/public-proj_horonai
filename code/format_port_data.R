@@ -36,7 +36,7 @@ skimr::skim(df0)
 ## correct date error
 df1 <- df0 %>% 
   filter(dummy == "NO",
-         !str_detect(section, "t"))
+         !str_detect(section, "t")) %>% 
   mutate(section = ifelse(section == 19800, 1980, section),
          date = case_when(date == as.Date("2020-12-12") ~ as.Date("2020-11-12"),
                           date == as.Date("2020-01-14") ~ as.Date("2021-01-14"),
