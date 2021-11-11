@@ -58,11 +58,34 @@ df_m <- df_response %>%
 
 # plot --------------------------------------------------------------------
 
-df_m %>% 
+g1 <- df_m %>% 
   filter(species %in% c("masusalmon",
                         "rainbowtrout",
                         "whitespottedchar")) %>% 
   ggplot(aes(x = sd_move,
              y = growth)) +
   geom_point() +
-  facet_wrap(facets = ~species)
+  facet_wrap(facets = ~species) +
+  theme_bw()
+
+g2 <- df_m %>% 
+  drop_na(sd_move) %>% 
+  filter(species %in% c("masusalmon",
+                        "rainbowtrout",
+                        "whitespottedchar")) %>% 
+  ggplot(aes(x = fork_length_1,
+             y = sd_move)) +
+  geom_point() +
+  facet_wrap(facets = ~species,
+             scales = "free_x") +
+  theme_bw()
+
+ggsave(g1,
+       filename = "output/figure_move_growth.pdf",
+       width = 9,
+       height = 3)
+
+ggsave(g2,
+       filename = "output/figure_move_size.pdf",
+       width = 9,
+       height = 3)
