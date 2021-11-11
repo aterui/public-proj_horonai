@@ -35,14 +35,14 @@ skimr::skim(df0)
 ## correct error data - 19800 to 1980
 ## correct date error
 df1 <- df0 %>% 
+  filter(dummy == "NO",
+         !str_detect(section, "t"))
   mutate(section = ifelse(section == 19800, 1980, section),
          date = case_when(date == as.Date("2020-12-12") ~ as.Date("2020-11-12"),
                           date == as.Date("2020-01-14") ~ as.Date("2021-01-14"),
                           TRUE ~ as.Date(date))) %>% 
   mutate(year_month_code = as.factor(format(date, "%y-%m")),
-         occasion = as.numeric(year_month_code)) %>% 
-  filter(dummy == "NO",
-         !str_detect(section, "t"))
+         occasion = as.numeric(year_month_code))
   
 # export ------------------------------------------------------------------
 
